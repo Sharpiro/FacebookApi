@@ -44,16 +44,10 @@ namespace FacebookApi
         {
             var venues = new[]
             {
-                "triplecbrewing",
-                "SycamoreBrewing",
-                "RockHouseEvents",
-                "WoodenRobotBrewery",
-                "219397021420603", //thomas street tavern
-                "OldeMeckBrewery",
-                "WoodenRobotBrewery"
+                "TaylorSwift",
             };
             var venueData = await venues.Select(v => CheckErrors(v)).WhenAll();
-            var allEvents = venueData.SelectMany(e => e.Events).OrderBy(e => e.StartTime);
+            var allEvents = venueData.SelectMany(v => v.Events).OrderBy(e => e.StartTime);
             var response = new { VenueData = allEvents, Exceptions = ((Logger)Logger).Exceptions.Select(e => e.Message) };
 
             var venueJson = JsonConvert.SerializeObject(venueData, Formatting.Indented);
@@ -67,7 +61,7 @@ namespace FacebookApi
                 catch (Exception ex)
                 {
                     Logger.LogError(ex);
-                    return await Task.FromResult(default(VenueModel));
+                    return await Task.FromResult(new VenueModel());
                 }
             }
         }
