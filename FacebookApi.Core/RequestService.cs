@@ -14,12 +14,12 @@ namespace FacebookApi.Core
             _accessToken = accessToken ?? throw new ArgumentNullException(nameof(accessToken));
         }
 
-        public async Task<string> GetAsync(string urlPath)
+        public async Task<string> GetAsync(string urlPath, bool appendToken = true)
         {
             using (var client = new HttpClient { BaseAddress = new Uri(BaseUrl) })
             {
-                var withOptions = $"{urlPath}?access_token={_accessToken}";
-                var responseMessage = await client.GetAsync(withOptions);
+                if (appendToken) urlPath = $"{urlPath}?access_token={_accessToken}";
+                var responseMessage = await client.GetAsync(urlPath);
                 var stringData = await responseMessage.Content.ReadAsStringAsync();
                 if (responseMessage.StatusCode != System.Net.HttpStatusCode.OK)
                     throw new HttpRequestException(stringData);
