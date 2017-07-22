@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace FacebookApi
@@ -19,8 +18,6 @@ namespace FacebookApi
 
         private static void Main(string[] args)
         {
-            GetAssemblyInfo();
-
             var builder = new ConfigurationBuilder().AddUserSecrets<Program>();
             Configuration = builder.Build();
             var token = Configuration["UserToken"];
@@ -33,24 +30,14 @@ namespace FacebookApi
             //GetLongToken().Wait();
         }
 
-        private static void GetAssemblyInfo()
-        {
-            var entryAssembly = Assembly.GetEntryAssembly();
-            var assemblyVersion = entryAssembly.GetName().Version;
-
-            var fvi = FileVersionInfo.GetVersionInfo(entryAssembly.Location);
-            string version = fvi.FileVersion;
-        }
-
         private static async Task GetLongToken()
         {
             var appId = Configuration["AppId"];
             var appSecret = Configuration["AppSecret"];
-            //var token = Configuration["AppToken"];
             var token = Configuration["UserToken"];
 
             var tokenObj = await ApiService.GetLongToken(appId, appSecret, token);
-            var json = JsonConvert.SerializeObject(tokenObj);
+            var json = JsonConvert.SerializeObject(tokenObj, Formatting.Indented);
         }
 
         private static async Task GetEvents()
