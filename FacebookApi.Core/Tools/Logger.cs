@@ -1,12 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace FacebookApi.Core.Tools
 {
     public class Logger : ILogger
     {
         private List<Exception> _exceptions = new List<Exception>();
+
+        public IReadOnlyList<Exception> Exceptions => _exceptions.ToImmutableList();
 
         public IDisposable BeginScope<TState>(TState state) => null;
 

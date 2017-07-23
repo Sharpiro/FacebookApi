@@ -1,4 +1,5 @@
 ﻿using FacebookApi.Core;
+using FacebookApi.Core.Models;
 using FacebookApi.Core.Tools;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -11,34 +12,56 @@ namespace FacebookApi
 {
     internal class Program
     {
+        private static ApiService ApiService;
+        private static ILogger Logger;
+        private static IConfigurationRoot Configuration;
+
         private static void Main(string[] args)
         {
             var builder = new ConfigurationBuilder().AddUserSecrets<Program>();
-            var configuration = builder.Build();
-            var accessToken = configuration["AppToken"];
+            Configuration = builder.Build();
+            var token = Configuration["UserToken"];
+            //var token = Configuration["AppToken"];
 
-            var apiService = new ApiService(new RequestService(accessToken));
-            var logger = new Logger();
+            ApiService = new ApiService(new RequestService(token));
+            Logger = new Logger();
+
+            GetEvents().Wait();
+            //GetLongToken().Wait();
+        }
+
+        private static async Task GetLongToken()
+        {
+            var appId = Configuration["AppId"];
+            var appSecret = Configuration["AppSecret"];
+            var token = Configuration["UserToken"];
+
+            var tokenObj = await ApiService.GetLongToken(appId, appSecret, token);
+            var json = JsonConvert.SerializeObject(tokenObj, Formatting.Indented);
+        }
+
+        private static async Task GetEvents()
+        {
             var venues = new[]
             {
-                "SycamoreBrewing",
-                //"RockHouseEvents",
-                "WoodenRobotBrewery",
-                "219397021420603" //thomas street tavern
+                "TaylorSwift",
             };
-            var venueData = venues.Select(v => CheckErrors(v)).WhenAll().Result;
-            var venueJson = JsonConvert.SerializeObject(venueData);
+            var venueData = await venues.Select(v => CheckErrors(v)).WhenAll();
+            var allEvents = venueData.SelectMany(v => v.Events).OrderBy(e => e.StartTime);
+            var response = new { VenueData = allEvents, Exceptions = ((Logger)Logger).Exceptions.Select(e => e.Message) };
 
-            async Task<object> CheckErrors(string name)
+            var venueJson = JsonConvert.SerializeObject(venueData, Formatting.Indented);
+
+            async Task<VenueModel> CheckErrors(string name)
             {
                 try
                 {
-                    return await apiService.GetEvents(name);
+                    return await ApiService.GetEvents(name);
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex);
-                    return await Task.FromResult(default(object));
+                    Logger.LogError(ex);
+                    return await Task.FromResult(new VenueModel());
                 }
             }
         }
