@@ -1,6 +1,7 @@
 ﻿using FacebookApi.Core.Models;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,6 +30,17 @@ namespace FacebookApi.Core
                 ExpiresSeconds = (int)jObject["expires_in"],
             };
             return aObj;
+        }
+
+        public async Task GetTokenInfo(string userToken)
+        {
+            var path = $"debug_token";
+            var queryParameters = new Dictionary<string, string> { ["input_token"] = userToken };
+            var data = await _requestService.GetAsync(path, true, queryParameters);
+
+
+
+            throw new NotImplementedException();
         }
 
         public async Task<VenueModel> GetEvents(string name)

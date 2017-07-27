@@ -20,14 +20,21 @@ namespace FacebookApi
         {
             var builder = new ConfigurationBuilder().AddUserSecrets<Program>();
             Configuration = builder.Build();
-            var token = Configuration["UserToken"];
-            //var token = Configuration["AppToken"];
+            //var token = Configuration["UserToken"];
+            var token = Configuration["AppToken"];
 
             ApiService = new ApiService(new RequestService(token));
             Logger = new Logger();
 
-            GetEvents().Wait();
+            GetTokenInfo().Wait();
+            //GetEvents().Wait();
             //GetLongToken().Wait();
+        }
+
+        private static async Task GetTokenInfo()
+        {
+            var token = Configuration["UserToken"];
+            await ApiService.GetTokenInfo(token);
         }
 
         private static async Task GetLongToken()
