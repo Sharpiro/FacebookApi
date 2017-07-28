@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace Microsoft.Extensions.Logging
+namespace FacebookApi.Core.Tools
 {
     public static class DotnetExtensions
     {
-        public static void LogError(this ILogger logger, Exception ex)
+        public static DateTime FromEpochTime(int seconds)
         {
-            logger.LogError(default(EventId), ex, null);
+            return new DateTime(1970, 1, 1).AddSeconds(seconds);
         }
     }
 }
