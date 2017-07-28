@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FacebookApi.Core
+namespace FacebookApi.Core.Services
 {
     public class RequestService
     {
@@ -17,7 +17,7 @@ namespace FacebookApi.Core
             _accessToken = accessToken ?? throw new ArgumentNullException(nameof(accessToken));
         }
 
-        public async Task<string> GetAsync(string urlPath, bool appendToken = true, Dictionary<string, string> queryParameters = null)
+        public async Task<string> GetAsync(string urlPath, Dictionary<string, string> queryParameters = null, bool appendToken = true)
         {
             queryParameters = queryParameters ?? new Dictionary<string, string>();
             if (appendToken) queryParameters.Add("access_token", _accessToken);
