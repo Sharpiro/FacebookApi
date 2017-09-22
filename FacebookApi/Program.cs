@@ -7,9 +7,9 @@ namespace FacebookApi
 {
     internal class Program
     {
-        private static AdminApiService AdminApiService;
-        private static UserApiService UserApiService;
-        private static IConfigurationRoot Configuration;
+        private static AdminApiService _adminApiService;
+        private static UserApiService _userApiService;
+        private static IConfigurationRoot _configuration;
 
         public static string AppToken { get; private set; }
         public static string UserToken { get; private set; }
@@ -17,12 +17,12 @@ namespace FacebookApi
         private static void Main(string[] args)
         {
             var builder = new ConfigurationBuilder().AddUserSecrets<Program>();
-            Configuration = builder.Build();
-            AppToken = Configuration["AppToken"];
-            UserToken = Configuration["UserToken"];
+            _configuration = builder.Build();
+            AppToken = _configuration["AppToken"];
+            UserToken = _configuration["UserToken"];
 
-            AdminApiService = new AdminApiService(new RequestService(AppToken));
-            UserApiService = new UserApiService(new RequestService(UserToken));
+            _adminApiService = new AdminApiService(new RequestService(AppToken));
+            _userApiService = new UserApiService(new RequestService(UserToken));
 
             //GetTokenInfo().Wait();
             GetEvents().Wait();
@@ -31,15 +31,15 @@ namespace FacebookApi
 
         private static async Task GetTokenInfo()
         {
-            await AdminApiService.GetTokenInfo(UserToken);
+            await _adminApiService.GetTokenInfo(UserToken);
         }
 
         private static async Task GetLongToken()
         {
-            var appId = Configuration["AppId"];
-            var appSecret = Configuration["AppSecret"];
+            var appId = _configuration["AppId"];
+            var appSecret = _configuration["AppSecret"];
 
-            var tokenObj = await UserApiService.GetLongToken(appId, appSecret, UserToken);
+            var tokenObj = await _userApiService.GetLongToken(appId, appSecret, UserToken);
             var json = JsonConvert.SerializeObject(tokenObj, Formatting.Indented);
         }
 
@@ -50,10 +50,9 @@ namespace FacebookApi
                 "TaylorSwift",
                 "Bodybuildingcom"
             };
-            var events = await UserApiService.GetAllEvents(venues);
-            var tokenInfo = await AdminApiService.GetTokenInfo(UserToken);
-            tokenInfo.Token = $"{UserToken.Substring(0, 10)}...";
-            var x = new { events.Events, Token = tokenInfo, events.Errors };
+            var events = await _userApiService.GetAllEvents(venues);
+            var tokenInfo = await _adminApiService.GetTokenInfo(UserToken);
+            var eventResponse = new { events.Events, Token = tokenInfo, events.Errors };
         }
     }
 }
