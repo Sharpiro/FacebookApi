@@ -26,7 +26,13 @@ namespace FacebookApi
 
             //GetTokenInfo().Wait();
             GetEvents().Wait();
+            //GetEventById().Wait();
             //GetLongToken().Wait();
+        }
+
+        private static async Task GetEventById(string eventId)
+        {
+            await _userApiService.GetEventAttendeeCountsById(eventId);
         }
 
         private static async Task GetTokenInfo()
@@ -47,8 +53,7 @@ namespace FacebookApi
         {
             var venues = new[]
             {
-                "TaylorSwift",
-                "Bodybuildingcom"
+                "LEGO"
             };
             var events = await _userApiService.GetAllEvents(venues);
             var tokenInfo = await _adminApiService.GetTokenInfo(UserToken);
